@@ -137,3 +137,25 @@ systemctl preset-all
 #
 # Tools
 #
+
+emerge app-shells/bash-completion
+
+systemctl enable systemd-timesyncd.service
+
+emerge sys-fs/dosfstools
+
+emerge net-misc/dhcpcd
+
+#
+# Bootloader
+#
+
+emerge sys-apps/systemd
+
+bootctl install
+
+bootctl list
+
+read -p "Verifica se esiste l'entrata, esegui 'emerge --ask --config sys-kernel/gentoo-kernel-bin' e poi ricontrolla"
+
+echo "Riavvia il pc"
