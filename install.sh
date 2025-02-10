@@ -3,7 +3,12 @@ set -e
 # $1 = block device disk
 # $2 = stage 3 file path
 
-options=("disk" "stage" "base" "kernel" "system" "tools" "bootloader")
+options=("disk" "stage" "base" "kernel" "system" "tools" "bootloader" "exit")
+
+if [[ $UID != "0" ]]; then
+    echo "usa 'sudo -i'"
+    exit
+fi
 
 select menu in "${options[@]}";
 do
@@ -28,7 +33,7 @@ do
         echo 'CFLAGS="${COMMON_FLAGS}"' >> /mnt/gentoo/etc/portage/make.conf
         echo 'CXXFLAGS="${COMMON_FLAGS}"' >> /mnt/gentoo/etc/portage/make.conf
     fi
-    if [[ $menu == "base" ]]; then
+    if [[ $menu == "base-setup" ]]; then
         # Base
         cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
         mount --types proc /proc /mnt/gentoo/proc
@@ -39,6 +44,9 @@ do
         mount --bind /run /mnt/gentoo/run
         mount --make-slave /mnt/gentoo/run
         chroot /mnt/gentoo /bin/bash
+    fi
+    if [[ $menu == "base-chroot" ]]; then
+        # Base chroot
         mount /dev/sda1 /efi
         emerge-webrsync
         emerge --sync
@@ -46,7 +54,7 @@ do
         eselect profile list
         read -p "Enter correct list element: " listnameoption
         eselect profile set "$listnameoption"
-        ln -sf ../usr/share/zoneinfo/Europe/Rome /etc/localtime
+        ln -sf /usr/share/zoneinfo/Europe/Rome /etc/localtime
         echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
         locale-gen
         eselect locale list
@@ -80,6 +88,7 @@ do
         emerge net-misc/dhcpcd
         systemctl enable dhcpcd
         echo "127.0.0.1 $hostameinput.homenetwork $hostameinput localhost" > /etc/hosts
+        echo "Metti la password di root"
         passwd
         systemd-machine-id-setup
         systemd-firstboot --prompt
@@ -100,5 +109,8 @@ do
         bootctl list
         read -p "Verifica se esiste l'entrata, esegui 'emerge --ask --config sys-kernel/gentoo-kernel-bin' e poi ricontrolla"
         echo "Riavvia il pc"
+    fi
+    if [[ $menu == "exit" ]]; then
+        exit
     fi
 done
