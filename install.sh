@@ -3,7 +3,7 @@ set -e
 # $1 = block device disk
 # $2 = stage 3 file path
 
-options=("disk" "stage" "base" "kernel" "system" "tools" "bootloader" "exit")
+options=("disk" "stage" "base-setup" "base-chroot" "kernel" "system" "tools" "bootloader" "exit")
 
 if [[ $UID != "0" ]]; then
     echo "usa 'sudo -i'"
