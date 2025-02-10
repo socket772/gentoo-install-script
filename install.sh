@@ -28,7 +28,11 @@ chronyd -q
 
 tar xpvf "$2" --xattrs-include='*.*' --numeric-owner -C "/mnt/gentoo"
 
-echo -n '# Compiler flags to set for all languages\nCOMMON_FLAGS="-march=native -O2 -pipe"\n# Use the same settings for both variables\nCFLAGS="${COMMON_FLAGS}"\nCXXFLAGS="${COMMON_FLAGS}"\n' > /mnt/gentoo/etc/portage/make.conf
+echo '# Compiler flags to set for all languages' >> /mnt/gentoo/etc/portage/make.conf
+echo 'COMMON_FLAGS="-march=native -O2 -pipe"' >> /mnt/gentoo/etc/portage/make.conf
+echo '# Use the same settings for both variables' >> /mnt/gentoo/etc/portage/make.conf
+echo 'CFLAGS="${COMMON_FLAGS}"' >> /mnt/gentoo/etc/portage/make.conf
+echo 'CXXFLAGS="${COMMON_FLAGS}"' >> /mnt/gentoo/etc/portage/make.conf
 
 #
 # Base
@@ -42,7 +46,7 @@ mount --make-rslave /mnt/gentoo/sys
 mount --rbind /dev /mnt/gentoo/dev
 mount --make-rslave /mnt/gentoo/dev
 mount --bind /run /mnt/gentoo/run
-mount --make-slave /mnt/gentoo/run 
+mount --make-slave /mnt/gentoo/run
 
 chroot /mnt/gentoo /bin/bash
 
@@ -51,8 +55,6 @@ mount /dev/sda1 /efi
 emerge-webrsync
 
 emerge --sync
-
-emerge --sync --quiet
 
 eselect news read
 
@@ -64,7 +66,7 @@ eselect profile set "$listnameoption"
 
 ln -sf ../usr/share/zoneinfo/Europe/Rome /etc/localtime
 
-echo -n "en_US.UTF-8 UTF-8" > /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 
 locale-gen
 
@@ -82,23 +84,22 @@ env-update
 
 emerge sys-kernel/linux-firmware
 
-echo -n 'sys-apps/systemd boot\nsys-kernel/installkernel systemd-boot' > /etc/portage/package.use/systemd-boot
-
-emerge --ask sys-apps/systemd sys-kernel/installkernel
-
-echo "quiet splash" > /etc/kernel/cmdline
+echo 'sys-apps/systemd boot' >> /etc/portage/package.use/systemd-boot
+echo 'sys-kernel/installkernel systemd-boot' >> /etc/portage/package.use/systemd-boot
 
 echo "sys-kernel/installkernel dracut" > /etc/portage/package.use/installkernel
 
-emerge --ask sys-kernel/installkernel
+echo "quiet splash" > /etc/kernel/cmdline
 
-emerge --ask sys-kernel/gentoo-kernel-bin
+emerge sys-apps/systemd sys-kernel/installkernel
 
-echo -n 'USE="dist-kernel"\n' >> /etc/portage/make.conf
+emerge sys-kernel/gentoo-kernel-bin
+
+echo 'USE="dist-kernel"' >> /etc/portage/make.conf
 
 emerge @module-rebuild
 
-emerge --ask sys-kernel/gentoo-sources
+emerge sys-kernel/gentoo-sources
 
 eselect kernel list
 
@@ -112,7 +113,8 @@ eselect kernel set "$listkerneloption"
 
 blkid
 
-echo '/dev/sda1 /efi vfat umask=0077 0 2\n/dev/sda2 / ext4 defaults,noatime 0 1' > /etc/fstab
+echo '/dev/sda1 /efi vfat umask=0077 0 2' >> /etc/fstab
+echo '/dev/sda2 / ext4 defaults,noatime 0 1' >> /etc/fstab
 
 read -p "Enter hostname: " hostameinput
 
