@@ -5,7 +5,9 @@ set -e
 
 options=("disk" "stage" "base-setup" "base-chroot" "kernel" "system" "tools" "bootloader" "exit")
 
-full_path="$(realpath $0)"
+installer_path="$(realpath $0)"
+stage_path="$(realpath $2)"
+
 
 if [[ $UID != "0" ]]; then
     echo "usa 'sudo -i'"
@@ -23,13 +25,13 @@ do
         mkdir --parents /mnt/gentoo
         mount "$1"2 /mnt/gentoo
         mkdir --parents /mnt/gentoo/efi
-        cp "$full_path" /mnt/gentoo
+        cp "$installer_path" /mnt/gentoo
     fi
     if [[ $menu == "stage" ]]; then
         # Stage
         cd /mnt/gentoo
         chronyd -q
-        tar xpvf "$2" --xattrs-include='*.*' --numeric-owner -C "/mnt/gentoo"
+        tar xpvf "$stage_path" --xattrs-include='*.*' --numeric-owner -C "/mnt/gentoo"
         echo '# Compiler flags to set for all languages' >> /mnt/gentoo/etc/portage/make.conf
         echo 'COMMON_FLAGS="-march=native -O2 -pipe"' >> /mnt/gentoo/etc/portage/make.conf
         echo '# Use the same settings for both variables' >> /mnt/gentoo/etc/portage/make.conf
