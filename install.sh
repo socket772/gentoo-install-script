@@ -5,6 +5,8 @@ set -e
 
 options=("disk" "stage" "base-setup" "base-chroot" "kernel" "system" "tools" "bootloader" "exit")
 
+full_path="$(realpath $0)"
+
 if [[ $UID != "0" ]]; then
     echo "usa 'sudo -i'"
     exit
@@ -21,6 +23,7 @@ do
         mkdir --parents /mnt/gentoo
         mount "$1"2 /mnt/gentoo
         mkdir --parents /mnt/gentoo/efi
+        cp "$full_path" /mnt/gentoo
     fi
     if [[ $menu == "stage" ]]; then
         # Stage
