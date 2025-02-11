@@ -37,6 +37,7 @@ do
         echo '# Use the same settings for both variables' >> /mnt/gentoo/etc/portage/make.conf
         echo 'CFLAGS="${COMMON_FLAGS}"' >> /mnt/gentoo/etc/portage/make.conf
         echo 'CXXFLAGS="${COMMON_FLAGS}"' >> /mnt/gentoo/etc/portage/make.conf
+        echo 'ACCEPT_LICENSE="*"' >> /mnt/gentoo/etc/portage/make.conf
     fi
     if [[ $menu == "base-setup" ]]; then
         # Base
