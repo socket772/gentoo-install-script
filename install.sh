@@ -25,8 +25,8 @@ do
     fi
     if [[ $menu == "stage" ]]; then
         # Stage
-        cd /mnt/gentoo
         chronyd -q
+        echo "$(realpath $2)"
         tar xpvf "$(realpath $2)" --xattrs-include='*.*' --numeric-owner -C "/mnt/gentoo"
         echo '# Compiler flags to set for all languages' >> /mnt/gentoo/etc/portage/make.conf
         echo 'COMMON_FLAGS="-march=native -O2 -pipe"' >> /mnt/gentoo/etc/portage/make.conf
