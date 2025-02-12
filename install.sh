@@ -14,7 +14,7 @@ select menu in "${options[@]}";
 do
     echo -e "\nyou picked $menu ($REPLY)"
     if [[ $menu == "disk" ]]; then
-        # Disks
+        # Disks - 1
         fdisk "$1"
         mkfs.fat -F 32 "$1"1
         mkfs.ext4 -L "gentoo-root" "$1"2
@@ -24,7 +24,7 @@ do
         cp "$(realpath $0)" /mnt/gentoo
     fi
     if [[ $menu == "stage" ]]; then
-        # Stage
+        # Stage - 2
         chronyd -q
         echo "$(realpath $2)"
         tar xpvf "$(realpath $2)" --xattrs-include='*.*' --numeric-owner -C "/mnt/gentoo"
@@ -36,7 +36,7 @@ do
         echo 'ACCEPT_LICENSE="*"' >> /mnt/gentoo/etc/portage/make.conf
     fi
     if [[ $menu == "base-setup" ]]; then
-        # Base
+        # Base - 3
         cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
         mount --types proc /proc /mnt/gentoo/proc
         mount --rbind /sys /mnt/gentoo/sys
@@ -48,7 +48,7 @@ do
         chroot /mnt/gentoo
     fi
     if [[ $menu == "base-chroot" ]]; then
-        # Base chroot
+        # Base chroot - 4
         mount /dev/sda1 /efi
         emerge-webrsync
         emerge --sync
@@ -65,15 +65,15 @@ do
         env-update
     fi
     if [[ $menu == "kernel" ]]; then
-        # Kernel
-        emerge sys-kernel/linux-firmware
+        # Kernel - 5
         echo 'sys-apps/systemd boot' >> /etc/portage/package.use/systemd-boot
         echo 'sys-kernel/installkernel systemd-boot' >> /etc/portage/package.use/systemd-boot
         echo "sys-kernel/installkernel dracut" > /etc/portage/package.use/installkernel
+        echo 'USE="dist-kernel"' >> /etc/portage/make.conf
         echo "quiet splash" > /etc/kernel/cmdline
+        emerge sys-kernel/linux-firmware
         emerge sys-apps/systemd sys-kernel/installkernel
         emerge sys-kernel/gentoo-kernel
-        echo 'USE="dist-kernel"' >> /etc/portage/make.conf
         emerge @module-rebuild
         emerge sys-kernel/gentoo-sources
         eselect kernel list
@@ -81,7 +81,7 @@ do
         eselect kernel set "$listkerneloption"
     fi
     if [[ $menu == "system" ]]; then
-        # System
+        # System - 6
         blkid
         echo '/dev/sda1 /efi vfat umask=0077 0 2' >> /etc/fstab
         echo '/dev/sda2 / ext4 defaults,noatime 0 1' >> /etc/fstab
@@ -98,14 +98,14 @@ do
         systemctl preset-all
     fi
     if [[ $menu == "tools" ]]; then
-        # Tools
+        # Tools - 7
         emerge app-shells/bash-completion
         systemctl enable systemd-timesyncd.service
         emerge sys-fs/dosfstools
         emerge net-misc/dhcpcd
     fi
     if [[ $menu == "bootloader" ]]; then
-        # Bootloader
+        # Bootloader - 8
         emerge sys-apps/systemd
         bootctl install
         bootctl list
