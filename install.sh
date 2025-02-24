@@ -28,12 +28,7 @@ do
         chronyd -q
         echo "$(realpath $2)"
         tar xpvf "$(realpath $2)" --xattrs-include='*.*' --numeric-owner -C "/mnt/gentoo"
-        echo '# Compiler flags to set for all languages' >> /mnt/gentoo/etc/portage/make.conf
-        echo 'COMMON_FLAGS="-march=native -O2 -pipe"' >> /mnt/gentoo/etc/portage/make.conf
-        echo '# Use the same settings for both variables' >> /mnt/gentoo/etc/portage/make.conf
-        echo 'CFLAGS="${COMMON_FLAGS}"' >> /mnt/gentoo/etc/portage/make.conf
-        echo 'CXXFLAGS="${COMMON_FLAGS}"' >> /mnt/gentoo/etc/portage/make.conf
-        echo 'ACCEPT_LICENSE="*"' >> /mnt/gentoo/etc/portage/make.conf
+        echo '\n\nACCEPT_LICENSE="*"' >> /mnt/gentoo/etc/portage/make.conf
     fi
     if [[ $menu == "base-setup" ]]; then
         # Base - 3
@@ -49,7 +44,7 @@ do
     fi
     if [[ $menu == "base-chroot" ]]; then
         # Base chroot - 4
-        mount /dev/sda1 /efi
+        mount "$1"1 /efi
         emerge-webrsync
         emerge --sync
         eselect news read
@@ -71,11 +66,9 @@ do
         echo "sys-kernel/installkernel dracut" > /etc/portage/package.use/installkernel
         echo 'USE="dist-kernel"' >> /etc/portage/make.conf
         echo "quiet splash" > /etc/kernel/cmdline
-        emerge sys-kernel/linux-firmware
         emerge sys-apps/systemd sys-kernel/installkernel
-        emerge sys-kernel/gentoo-kernel
+        emerge sys-kernel/gentoo-kernel-bin
         emerge @module-rebuild
-        emerge sys-kernel/gentoo-sources
         eselect kernel list
         read -p "Enter correct list element: " listkerneloption
         eselect kernel set "$listkerneloption"
@@ -83,12 +76,11 @@ do
     if [[ $menu == "system" ]]; then
         # System - 6
         blkid
-        echo '/dev/sda1 /efi vfat umask=0077 0 2' >> /etc/fstab
-        echo '/dev/sda2 / ext4 defaults,noatime 0 1' >> /etc/fstab
+        echo "$1"'1 /efi vfat umask=0077 0 2' >> /etc/fstab
+        echo "$1"'2 / ext4 defaults 0 1' >> /etc/fstab
         read -p "Enter hostname: " hostameinput
         echo "$hostameinput" > /etc/hostname
         emerge net-misc/dhcpcd
-        echo "127.0.0.1 $hostameinput.homenetwork $hostameinput localhost" > /etc/hosts
         echo "Metti la password di root"
         passwd
         systemd-machine-id-setup
@@ -102,11 +94,10 @@ do
         emerge app-shells/bash-completion
         systemctl enable systemd-timesyncd.service
         emerge sys-fs/dosfstools
-        emerge net-misc/dhcpcd
+        emerge app-misc/fastfetch
     fi
     if [[ $menu == "bootloader" ]]; then
         # Bootloader - 8
-        emerge sys-apps/systemd
         bootctl install
         bootctl list
         echo "Verifica se esiste l'entrata, esegui 'emerge --ask --config sys-kernel/gentoo-kernel-bin' e poi ricontrolla"
